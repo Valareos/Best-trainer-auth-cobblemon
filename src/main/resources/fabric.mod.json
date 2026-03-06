@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "best_trainer_auth",
+  "version": "${version}",
+  "name": "Best Trainer Auth",
+  "description": "Server-side trainer login scaffold for shared-PC Cobblemon setups.",
+  "authors": [
+    "OpenAI"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "au.com.bestdisabilitysupport.trainerauth.BestTrainerAuthMod"
+    ]
+  },
+  "mixins": [
+    "best-trainer-auth.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
