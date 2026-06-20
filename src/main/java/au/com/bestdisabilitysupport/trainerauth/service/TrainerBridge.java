@@ -1,5 +1,6 @@
 package au.com.bestdisabilitysupport.trainerauth.service;
 
+import au.com.bestdisabilitysupport.trainerauth.BestTrainerAuthMod;
 import au.com.bestdisabilitysupport.trainerauth.config.ModConfig;
 import au.com.bestdisabilitysupport.trainerauth.service.handler.CobblemonDataHandler;
 import au.com.bestdisabilitysupport.trainerauth.service.handler.ProfileDataHandler;
@@ -71,11 +72,25 @@ public final class TrainerBridge {
         return selectionStore.consumeActivated(liveUuid);
     }
 
+    public void clearStaleLiveSessionIfNeeded(UUID liveUuid) {
+        MigrationStore migrationStore = BestTrainerAuthMod.migrationStore();
+        if (migrationStore != null && migrationStore.hasMigrated(liveUuid)) {
+            wipeLiveUuidData(liveUuid);
+            LOGGER.info("[BestProfileAuth] Cleared stale live UUID data for returning profile user {}", liveUuid);
+        }
+    }
+
     public void onDisconnect(ServerPlayerEntity player, String trainerKey, boolean stillExists) {
         try {
             if (stillExists) {
                 ensureTrainerFolder(trainerKey);
                 saveLivePlayerToSnapshot(player, snapshotFolder(trainerKey), true, trainerKey);
+                wipeLiveUuidData(player.getUuid());
+                LOGGER.info(
+                        "[BestProfileAuth] Saved and cleared live UUID data for profile '{}' ({})",
+                        trainerKey,
+                        player.getUuid()
+                );
             }
         } finally {
             selectionStore.clearAll(player.getUuid());

@@ -18,11 +18,13 @@ public record ModConfig(
         boolean lockBlockBreaking,
         boolean lockCombat,
         long autosaveIntervalTicks,
-        int maxBackupsPerProfile
+        int maxBackupsPerProfile,
+        boolean allowSelfRegistration,
+        String adminOverridePassword
 ) {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String FILE_NAME = "config.json";
-    private static final int CURRENT_CONFIG_VERSION = 2;
+    private static final int CURRENT_CONFIG_VERSION = 4;
 
     public static ModConfig defaults() {
         return new ModConfig(
@@ -33,7 +35,9 @@ public record ModConfig(
                 true,
                 true,
                 6000L,
-                10
+                10,
+                false,
+                ""
         );
     }
 
@@ -77,6 +81,8 @@ public record ModConfig(
         boolean lockCombat = getBoolean(root, "lockCombat", defaults.lockCombat());
         long autosaveIntervalTicks = getLong(root, "autosaveIntervalTicks", defaults.autosaveIntervalTicks());
         int maxBackupsPerProfile = getInt(root, "maxBackupsPerProfile", defaults.maxBackupsPerProfile());
+        boolean allowSelfRegistration = getBoolean(root, "allowSelfRegistration", defaults.allowSelfRegistration());
+        String adminOverridePassword = getString(root, "adminOverridePassword", defaults.adminOverridePassword());
 
         return new ModConfig(
                 CURRENT_CONFIG_VERSION,
@@ -86,7 +92,9 @@ public record ModConfig(
                 lockBlockBreaking,
                 lockCombat,
                 autosaveIntervalTicks,
-                maxBackupsPerProfile
+                maxBackupsPerProfile,
+                allowSelfRegistration,
+                adminOverridePassword
         );
     }
 
@@ -109,6 +117,14 @@ public record ModConfig(
     private static boolean getBoolean(JsonObject root, String key, boolean fallback) {
         try {
             return root.has(key) ? root.get(key).getAsBoolean() : fallback;
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
+    private static String getString(JsonObject root, String key, String fallback) {
+        try {
+            return root.has(key) ? root.get(key).getAsString() : fallback;
         } catch (Exception e) {
             return fallback;
         }

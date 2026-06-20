@@ -80,12 +80,21 @@ public final class BestTrainerAuthMod implements ModInitializer {
 
             Optional<String> activated = trainerBridge.consumeActivatedTrainer(player.getUuid());
             if (activated.isPresent()) {
-                sessionService.setLoggedIn(player, activated.get());
-                player.sendMessage(Text.literal("Logged in as profile: " + activated.get()), false);
+                String profileKey = activated.get();
+                sessionService.setLoggedIn(player, profileKey);
+                migrationStore.markMigrated(player.getUuid(), profileKey);
+                player.sendMessage(Text.literal("Logged in as profile: " + profileKey), false);
             } else {
                 sessionService.markPending(player, player.getPos(), player.getYaw(), player.getPitch());
                 player.sendMessage(Text.literal("You must login with a profile."), false);
                 player.sendMessage(Text.literal("Use /profile login <key> <password>"), false);
+
+                if (config.allowSelfRegistration()) {
+                    player.sendMessage(
+                            Text.literal("No profile yet? Use /profile register <key> <password> to create one."),
+                            false
+                    );
+                }
 
                 if (migrationStore != null
                         && !migrationStore.hasMigrated(player.getUuid())

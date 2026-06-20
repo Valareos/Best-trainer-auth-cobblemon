@@ -19,9 +19,13 @@ public abstract class PlayerManagerMixin {
 
         if (BestTrainerAuthMod.trainerBridge() != null) {
             Optional<String> result = BestTrainerAuthMod.trainerBridge().prepareForJoin(player.getUuid());
-            result.ifPresent(trainer ->
-                    BestTrainerAuthMod.LOGGER.info("[BestTrainerAuth] Prepared trainer {} for {}", trainer, player.getName().getString())
-            );
+            if (result.isEmpty()) {
+                BestTrainerAuthMod.trainerBridge().clearStaleLiveSessionIfNeeded(player.getUuid());
+            } else {
+                result.ifPresent(trainer ->
+                        BestTrainerAuthMod.LOGGER.info("[BestTrainerAuth] Prepared trainer {} for {}", trainer, player.getName().getString())
+                );
+            }
         }
     }
 }
